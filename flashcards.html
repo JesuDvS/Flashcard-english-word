@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1000 Words — Flashcards</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080810;
+    --surface: #10101a;
+    --card: #12121e;
+    --border: #1e1e32;
+    --accent: #7fff8c;
+    --accent2: #4fc3f7;
+    --accent3: #ff7eb3;
+    --text: #eeeef8;
+    --muted: #c4c4c4;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 12px 48px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 40% at 15% 5%,  rgba(127,255,140,.05) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 85% 90%, rgba(79,195,247,.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    width: 100%;
+    max-width: 960px;
+    text-align: center;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 40px);
+    letter-spacing: -1px;
+    line-height: 1;
+  }
+  .logo span { color: var(--accent); font-style: italic; }
+  .subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 5px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: .06em;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+    position: relative;
+    z-index: 1;
+  }
+  .file-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--accent);
+    color: #080810;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+    transition: opacity .15s, transform .1s;
+    white-space: nowrap;
+  }
+  .file-btn:hover { opacity: .85; transform: translateY(-1px); }
+  #fileInput { display: none; }
+
+  .range-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    color: var(--muted);
+  }
+  .range-group input[type=number] {
+    width: 58px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+  }
+  .range-group input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .range-group input[type=number]:focus { border-color: var(--accent); }
+
+  .btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s, transform .1s;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .shuffle-on { border-color: var(--accent3) !important; color: var(--accent3) !important; }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    width: 100%;
+    max-width: 960px;
+    margin-bottom: 18px;
+    position: relative;
+    z-index: 1;
+  }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 7px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── Card row ── */
+  .card-row {
+    width: 100%;
+    max-width: 960px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── Side nav buttons ── */
+  .nav-btn {
+    flex-shrink: 0;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .15s, color .15s, background .15s, transform .12s;
+    line-height: 1;
+    user-select: none;
+  }
+  .nav-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(127,255,140,.07);
+    transform: scale(1.1);
+  }
+  .nav-btn:disabled { opacity: .18; cursor: not-allowed; }
+
+  /* ── Card ── */
+  .card {
+    flex: 1;
+    min-width: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 44px 52px 42px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    background-image: radial-gradient(circle at 94% 6%, rgba(127,255,140,.06) 0%, transparent 45%);
+  }
+
+  /* Animation classes */
+  .slide-forward {
+    animation: slideForward .28s cubic-bezier(.4,0,.2,1) both;
+  }
+  .slide-back {
+    animation: slideBack .28s cubic-bezier(.4,0,.2,1) both;
+  }
+  @keyframes slideForward {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes slideBack {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Card header */
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--border);
+    padding: 3px 10px;
+    border-radius: 20px;
+    letter-spacing: .07em;
+  }
+  .card-pos {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+  }
+
+  /* Word — VERY LARGE */
+  .card-word {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(60px, 12vw, 104px);
+    color: var(--text);
+    line-height: .92;
+    letter-spacing: -3px;
+  }
+
+  /* Irregular */
+  .card-irregular {
+    font-family: 'DM Mono', monospace;
+    font-size: clamp(15px, 2.2vw, 19px);
+    color: var(--accent3);
+    letter-spacing: .04em;
+  }
+  .card-irregular em { color: var(--muted); font-style: normal; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); border: none; }
+
+  /* Labels */
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--muted);
+    margin-bottom: 5px;
+    opacity: .65;
+  }
+
+  /* Definition */
+  .card-definition {
+    font-size: clamp(19px, 3vw, 26px);
+    color: var(--text);
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  /* Example */
+  .card-example {
+    font-size: clamp(17px, 2.6vw, 23px);
+    color: var(--accent2);
+    font-style: italic;
+    line-height: 1.5;
+  }
+
+  /* Translation */
+  .card-translation {
+    font-size: clamp(15px, 2.3vw, 20px);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Counter below */
+  .card-counter {
+    width: 100%;
+    max-width: 960px;
+    text-align: center;
+    margin-top: 14px;
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--muted);
+    position: relative;
+    z-index: 1;
+  }
+  .card-counter .cur { color: var(--text); }
+
+  /* Empty */
+  #emptySlot {
+    width: 100%;
+    max-width: 960px;
+    position: relative;
+    z-index: 1;
+  }
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+  .empty .big {
+    font-family: 'DM Serif Display', serif;
+    font-size: 56px;
+    color: var(--border);
+    display: block;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 600px) {
+    .card { padding: 28px 22px 30px; gap: 16px; }
+    .nav-btn { width: 42px; height: 42px; font-size: 18px; }
+    .card-row { gap: 8px; }
+    .card-word { letter-spacing: -1px; }
+    .range-group { flex-wrap: wrap; justify-content: center; }
+  }
+
+  /* ── Voice Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,8,16,.75);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 30px 26px;
+    width: min(92vw, 400px);
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.6);
+    position: relative;
+  }
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: var(--text);
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 18px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+    transition: color .15s;
+  }
+  .modal-close:hover { color: var(--accent); }
+  .modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .modal-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .modal-select, .modal-range-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 9px 13px;
+    outline: none;
+    width: 100%;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .modal-select:focus { border-color: var(--accent); }
+  .modal-range-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 13px;
+  }
+  .modal-range-wrap input[type=range] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .modal-range-val {
+    min-width: 36px;
+    text-align: right;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .modal-save {
+    background: var(--accent);
+    color: #080810;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 11px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity .15s;
+    align-self: flex-end;
+  }
+  .modal-save:hover { opacity: .85; }
+
+  /* ── Mini Player ── */
+  .mini-player {
+    position: fixed;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 60px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    z-index: 900;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 280px;
+    max-width: 90vw;
+    backdrop-filter: blur(10px);
+    transition: opacity .2s;
+  }
+  .mini-player.hidden { display: none; }
+  .player-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color .15s, color .15s, transform .1s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .player-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.1); }
+  .player-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(127,255,140,.1); }
+  .player-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .player-word {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: .02em;
+  }
+  .player-meta {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: .04em;
+  }
+  .player-timer-ring {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+  }
+  .player-timer-ring circle {
+    transition: stroke-dashoffset .1s linear;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">1000 <span>Words</span></div>
+  <div class="subtitle">// flashcard study system</div>
+</header>
+
+<div class="controls">
+  <label class="file-btn" for="fileInput">↑ Cargar CSV</label>
+  <input type="file" id="fileInput" accept=".csv">
+
+  <div class="range-group">
+    <span>desde</span>
+    <input type="number" id="rangeFrom" value="1" min="1">
+    <span>hasta</span>
+    <input type="number" id="rangeTo" value="50" min="1">
+    <button class="btn" id="applyRange">ir</button>
+  </div>
+
+  <button class="btn" id="shuffleBtn">⇌ mezclar</button>
+  <button class="btn" id="voiceSettingsBtn">🎙 voz</button>
+</div>
+
+<div class="progress-wrap" id="progressWrap" style="display:none">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label">
+    <span id="progressText">0 vistas</span>
+    <span id="progressRange"></span>
+  </div>
+</div>
+
+<!-- [←] card [→] -->
+<div class="card-row" id="cardRow" style="display:none">
+  <button class="nav-btn" id="prevBtn" disabled>←</button>
+  <div id="cardSlot" style="flex:1;min-width:0;"></div>
+  <button class="nav-btn" id="nextBtn">→</button>
+</div>
+
+<div id="emptySlot">
+  <div class="empty">
+    <span class="big">◈</span>
+    Carga tu archivo <strong>resultado.csv</strong> para comenzar
+  </div>
+</div>
+
+<div class="card-counter" id="cardCounter" style="display:none">
+  <span class="cur" id="curNum">1</span> / <span id="totalNum">0</span>
+</div>
+
+<!-- ── Voice Settings Modal ── -->
+<div class="modal-overlay" id="voiceModal">
+  <div class="modal-box">
+    <div class="modal-title">⚙ Configuración de voz</div>
+    <button class="modal-close" id="closeVoiceModal">✕</button>
+
+    <div class="modal-field">
+      <div class="modal-label">Voz del navegador</div>
+      <select class="modal-select" id="voiceSelect">
+        <option value="">Cargando voces…</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Velocidad</div>
+      <div class="modal-range-wrap">
+        <input type="range" id="rateSlider" min="0.5" max="2" step="0.05" value="0.85">
+        <span class="modal-range-val" id="rateVal">0.85×</span>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Tono</div>
+      <div class="modal-range-wrap">
+        <input type="range" id="pitchSlider" min="0.5" max="2" step="0.05" value="1">
+        <span class="modal-range-val" id="pitchVal">1.00</span>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Pausa entre palabras (seg)</div>
+      <div class="modal-range-wrap">
+        <input type="range" id="pauseSlider" min="1" max="8" step="0.5" value="3">
+        <span class="modal-range-val" id="pauseVal">3.0 s</span>
+      </div>
+    </div>
+
+    <button class="modal-save" id="saveVoiceSettings">Probar voz ▶</button>
+  </div>
+</div>
+
+<!-- ── Mini Player ── -->
+<div class="mini-player hidden" id="miniPlayer">
+  <button class="player-btn" id="playerPlayPause" title="Play / Pausa">▶</button>
+  <button class="player-btn" id="playerPrev" title="Carta anterior">⏮</button>
+  <div class="player-info">
+    <div class="player-word" id="playerWord">—</div>
+    <div class="player-meta" id="playerMeta">carta 0 / 0</div>
+  </div>
+  <button class="player-btn" id="playerNext" title="Siguiente carta">⏭</button>
+  <!-- Anillo cuenta regresiva SVG -->
+  <svg class="player-timer-ring" viewBox="0 0 34 34">
+    <circle cx="17" cy="17" r="14" fill="none" stroke="#1e1e32" stroke-width="3"/>
+    <circle id="timerArc" cx="17" cy="17" r="14" fill="none"
+      stroke="#7fff8c" stroke-width="3"
+      stroke-dasharray="87.96" stroke-dashoffset="87.96"
+      stroke-linecap="round"
+      transform="rotate(-90 17 17)"/>
+  </svg>
+  <button class="player-btn" id="playerClose" title="Cerrar reproductor">✕</button>
+</div>
+
+<script>
+let allCards = [];
+let filtered = [];
+let current  = 0;
+let shuffled = false;
+let seen     = new Set();
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
+  return lines.slice(1).map(line => {
+    const cols = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      if (line[i] === '"') { inQ = !inQ; continue; }
+      if (line[i] === ',' && !inQ) { cols.push(cur); cur = ''; continue; }
+      cur += line[i];
+    }
+    cols.push(cur);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (cols[i] || '').trim());
+    return obj;
+  }).filter(r => {
+    return Object.keys(r).some(k =>
+      k.replace(/[-_ ]/g,'').toLowerCase() === 'englishword' && r[k]
+    );
+  });
+}
+
+function getField(card, ...keys) {
+  for (const k of keys) {
+    if (card[k]) return card[k];
+    const norm = k.replace(/[-_ ]/g,'').toLowerCase();
+    const match = Object.keys(card).find(h => h.replace(/[-_ ]/g,'').toLowerCase() === norm);
+    if (match && card[match]) return card[match];
+  }
+  return '';
+}
+
+function render(dir = 'forward') {
+  const slot = document.getElementById('cardSlot');
+
+  if (!filtered.length) {
+    document.getElementById('cardRow').style.display = 'none';
+    document.getElementById('cardCounter').style.display = 'none';
+    document.getElementById('emptySlot').style.display = 'block';
+    document.getElementById('emptySlot').innerHTML =
+      '<div class="empty"><span class="big">◈</span>Sin resultados en ese rango</div>';
+    return;
+  }
+
+  document.getElementById('cardRow').style.display = 'flex';
+  document.getElementById('cardCounter').style.display = 'block';
+  document.getElementById('emptySlot').style.display = 'none';
+
+  const c = filtered[current];
+  const num        = getField(c,'num-flashcard','num flashcard','num');
+  const word       = getField(c,'english-word','english word');
+  const irregular  = getField(c,'irregular-english-word','irregular english word');
+  const definition = getField(c,'definition');
+  const example    = getField(c,'example-sentence','example sentence');
+  const translation= getField(c,'translate-example-sentence','translate example sentence');
+
+  const animClass = dir === 'back' ? 'card slide-back' : 'card slide-forward';
+
+  slot.innerHTML = `
+    <div class="${animClass}">
+      <div class="card-header">
+        <span class="badge">#${num}</span>
+        <span class="card-pos">${current + 1} de ${filtered.length}</span>
+      </div>
+
+      <div class="card-word">${word}</div>
+
+      ${irregular ? `<div class="card-irregular"><em>pasado: </em>${irregular}</div>` : ''}
+
+      <hr class="divider">
+
+      ${definition ? `<div><div class="section-label">Definición</div><div class="card-definition">${definition}</div></div>` : ''}
+      ${example    ? `<div><div class="section-label">Ejemplo</div><div class="card-example">${example}</div></div>` : ''}
+      ${translation? `<div><div class="section-label">Traducción</div><div class="card-translation">${translation}</div></div>` : ''}
+    </div>`;
+
+  seen.add(current);
+  updateProgress();
+  updateNav();
+}
+
+function updateNav() {
+  document.getElementById('prevBtn').disabled = current === 0;
+  document.getElementById('nextBtn').disabled = current === filtered.length - 1;
+  document.getElementById('curNum').textContent  = current + 1;
+  document.getElementById('totalNum').textContent = filtered.length;
+}
+
+function updateProgress() {
+  const pct = filtered.length ? (seen.size / filtered.length) * 100 : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = `${seen.size} / ${filtered.length} vistas`;
+  const from = parseInt(document.getElementById('rangeFrom').value) || 1;
+  const to   = parseInt(document.getElementById('rangeTo').value)   || filtered.length;
+  document.getElementById('progressRange').textContent = `cartas ${from}–${to}`;
+}
+
+function applyRange() {
+  if (!allCards.length) return;
+  const from = Math.max(1, parseInt(document.getElementById('rangeFrom').value) || 1);
+  const to   = Math.min(allCards.length, parseInt(document.getElementById('rangeTo').value) || allCards.length);
+  document.getElementById('rangeFrom').value = from;
+  document.getElementById('rangeTo').value   = to;
+  filtered = allCards.filter(c => {
+    const n = parseInt(getField(c,'num-flashcard','num flashcard','num')) || 0;
+    return n >= from && n <= to;
+  });
+  if (shuffled) filtered = [...filtered].sort(() => Math.random() - .5);
+  current = 0; seen.clear();
+  document.getElementById('progressWrap').style.display = 'block';
+  render('forward');
+}
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    allCards = parseCSV(ev.target.result);
+    if (!allCards.length) { alert('No se pudieron leer tarjetas del CSV. Verifica el formato.'); return; }
+    document.getElementById('rangeTo').value   = allCards.length;
+    document.getElementById('rangeFrom').value = 1;
+    applyRange();
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => { if (current > 0) { current--; render('back'); } });
+document.getElementById('nextBtn').addEventListener('click', () => { if (current < filtered.length-1) { current++; render('forward'); } });
+document.getElementById('applyRange').addEventListener('click', applyRange);
+
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  shuffled = !shuffled;
+  document.getElementById('shuffleBtn').classList.toggle('shuffle-on', shuffled);
+  document.getElementById('shuffleBtn').textContent = shuffled ? '⇌ mezclado ✓' : '⇌ mezclar';
+  if (filtered.length) {
+    if (shuffled) filtered = [...filtered].sort(() => Math.random() - .5);
+    else applyRange();
+    current = 0; seen.clear(); render('forward');
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (!filtered.length) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    if (current < filtered.length-1) { current++; render('forward'); }
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    if (current > 0) { current--; render('back'); }
+  }
+});
+
+/* ══════════════════════════════════════
+   VOICE SETTINGS
+══════════════════════════════════════ */
+let voices       = [];
+let selectedVoice = null;
+let ttsRate      = 0.85;
+let ttsPitch     = 1.0;
+let pauseSecs    = 3.0;
+
+let voicesLoaded = false;
+
+function loadVoices() {
+  const raw = speechSynthesis.getVoices();
+  if (!raw.length) return; // aún no disponibles
+
+  // Guardar nombre de la voz actualmente seleccionada (para restaurarla)
+  const prevName = selectedVoice ? selectedVoice.name : null;
+
+  // Priorizar voces en inglés
+  const eng  = raw.filter(v => v.lang.startsWith('en'));
+  const rest = raw.filter(v => !v.lang.startsWith('en'));
+  voices = [...eng, ...rest];
+
+  const sel = document.getElementById('voiceSelect');
+  sel.innerHTML = '';
+  let restoredIdx = -1;
+
+  voices.forEach((v, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})${v.default ? ' ★' : ''}`;
+    sel.appendChild(opt);
+    if (v.name === prevName) restoredIdx = i; // encontrar la voz previa
+  });
+
+  if (restoredIdx !== -1) {
+    // Restaurar la selección del usuario
+    sel.value = restoredIdx;
+    selectedVoice = voices[restoredIdx];
+  } else if (!selectedVoice) {
+    // Primera carga: usar la voz por defecto
+    const defIdx = voices.findIndex(v => v.default);
+    const idx = defIdx !== -1 ? defIdx : 0;
+    sel.value = idx;
+    selectedVoice = voices[idx] || null;
+  }
+
+  voicesLoaded = true;
+}
+
+speechSynthesis.addEventListener('voiceschanged', loadVoices);
+loadVoices();
+
+function openVoiceModal() {
+  // Sincronizar el select con la voz actualmente guardada (sin resetearla)
+  if (!voicesLoaded) loadVoices();
+  const sel = document.getElementById('voiceSelect');
+  if (selectedVoice) {
+    const idx = voices.findIndex(v => v.name === selectedVoice.name);
+    if (idx !== -1) sel.value = idx;
+  }
+  document.getElementById('voiceModal').classList.add('open');
+}
+
+document.getElementById('voiceSettingsBtn').addEventListener('click', openVoiceModal);
+document.getElementById('closeVoiceModal').addEventListener('click', () => {
+  document.getElementById('voiceModal').classList.remove('open');
+});
+document.getElementById('voiceModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('voiceModal'))
+    document.getElementById('voiceModal').classList.remove('open');
+});
+
+document.getElementById('rateSlider').addEventListener('input', function() {
+  ttsRate = parseFloat(this.value);
+  document.getElementById('rateVal').textContent = ttsRate.toFixed(2) + '×';
+});
+document.getElementById('pitchSlider').addEventListener('input', function() {
+  ttsPitch = parseFloat(this.value);
+  document.getElementById('pitchVal').textContent = ttsPitch.toFixed(2);
+});
+document.getElementById('pauseSlider').addEventListener('input', function() {
+  pauseSecs = parseFloat(this.value);
+  document.getElementById('pauseVal').textContent = pauseSecs.toFixed(1) + ' s';
+});
+document.getElementById('voiceSelect').addEventListener('change', function() {
+  selectedVoice = voices[parseInt(this.value)] || null;
+});
+
+document.getElementById('saveVoiceSettings').addEventListener('click', () => {
+  const testWord = filtered.length ? getField(filtered[current],'english-word','english word') : 'Hello, this is a voice test';
+  speakWord(testWord);
+});
+
+function speakWord(text) {
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  if (selectedVoice) utt.voice = selectedVoice;
+  utt.rate  = ttsRate;
+  utt.pitch = ttsPitch;
+  utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+  speechSynthesis.speak(utt);
+  return utt;
+}
+
+/* ══════════════════════════════════════
+   MINI PLAYER
+══════════════════════════════════════ */
+let playerActive  = false;
+let playerPlaying = false;
+let playerIdx     = 0;
+let playerTimer   = null;
+let timerStart    = null;
+let animFrame     = null;
+
+const miniPlayer   = document.getElementById('miniPlayer');
+const btnPlayPause = document.getElementById('playerPlayPause');
+const btnPrev      = document.getElementById('playerPrev');
+const btnNext      = document.getElementById('playerNext');
+const btnClose     = document.getElementById('playerClose');
+const playerWord   = document.getElementById('playerWord');
+const playerMeta   = document.getElementById('playerMeta');
+const timerArc     = document.getElementById('timerArc');
+const CIRCUMFERENCE = 87.96; // 2π×14
+
+function openPlayer() {
+  playerIdx = current;
+  miniPlayer.classList.remove('hidden');
+  playerActive = true;
+  updatePlayerUI();
+}
+
+function updatePlayerUI() {
+  if (!filtered.length) return;
+  const c = filtered[playerIdx];
+  const word = getField(c,'english-word','english word');
+  playerWord.textContent = word || '—';
+  playerMeta.textContent = `carta ${playerIdx+1} / ${filtered.length}`;
+  btnPlayPause.classList.toggle('active', playerPlaying);
+  btnPlayPause.textContent = playerPlaying ? '⏸' : '▶';
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE; // reset ring
+}
+
+function startPlayback() {
+  if (!filtered.length) return;
+  playerPlaying = true;
+  btnPlayPause.textContent = '⏸';
+  btnPlayPause.classList.add('active');
+  speakAndWait();
+}
+
+function speakAndWait() {
+  if (!playerPlaying) return;
+  const c = filtered[playerIdx];
+  const word = getField(c,'english-word','english word');
+  playerWord.textContent = word || '—';
+  playerMeta.textContent = `carta ${playerIdx+1} / ${filtered.length}`;
+
+  // Navegar la tarjeta principal también
+  current = playerIdx;
+  render('forward');
+
+  const utt = speakWord(word);
+  utt.onend = () => {
+    if (!playerPlaying) return;
+    startCountdown();
+  };
+  utt.onerror = () => { if (playerPlaying) startCountdown(); };
+}
+
+function startCountdown() {
+  timerStart = performance.now();
+  cancelAnimationFrame(animFrame);
+  animFrame = requestAnimationFrame(tickCountdown);
+}
+
+function tickCountdown(now) {
+  if (!playerPlaying) return;
+  const elapsed = (now - timerStart) / 1000;
+  const progress = Math.min(elapsed / pauseSecs, 1);
+  // Arco: 0→lleno mientras espera
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+
+  if (progress >= 1) {
+    timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+    advancePlayer();
+  } else {
+    animFrame = requestAnimationFrame(tickCountdown);
+  }
+}
+
+function advancePlayer() {
+  if (playerIdx < filtered.length - 1) {
+    playerIdx++;
+    speakAndWait();
+  } else {
+    // Terminó
+    stopPlayback();
+    playerMeta.textContent = `✓ completado (${filtered.length} cartas)`;
+    timerArc.style.strokeDashoffset = 0;
+  }
+}
+
+function stopPlayback() {
+  playerPlaying = false;
+  speechSynthesis.cancel();
+  cancelAnimationFrame(animFrame);
+  clearTimeout(playerTimer);
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+  btnPlayPause.textContent = '▶';
+  btnPlayPause.classList.remove('active');
+}
+
+btnPlayPause.addEventListener('click', () => {
+  if (!filtered.length) { alert('Carga un CSV primero.'); return; }
+  if (!playerActive) openPlayer();
+  if (playerPlaying) {
+    stopPlayback();
+  } else {
+    startPlayback();
+  }
+});
+
+btnPrev.addEventListener('click', () => {
+  if (playerIdx > 0) {
+    stopPlayback();
+    playerIdx--;
+    updatePlayerUI();
+    current = playerIdx;
+    render('back');
+  }
+});
+
+btnNext.addEventListener('click', () => {
+  if (playerIdx < filtered.length - 1) {
+    stopPlayback();
+    playerIdx++;
+    updatePlayerUI();
+    current = playerIdx;
+    render('forward');
+  }
+});
+
+btnClose.addEventListener('click', () => {
+  stopPlayback();
+  miniPlayer.classList.add('hidden');
+  playerActive = false;
+});
+
+// Abrir player con botón "▶ reproducir"
+document.getElementById('voiceSettingsBtn').addEventListener('click', () => {}, { once: false });
+
+// Mostrar player automáticamente si hay cartas y se hace click en el botón de voz
+// (el player se activa con el botón play del propio reproductor)
+// Asegurar que el player aparece cuando hay cartas cargadas
+const origApplyRange = applyRange;
+function applyRangeAndShowPlayer() {
+  origApplyRange();
+  if (!miniPlayer.classList.contains('hidden') || playerActive) {
+    updatePlayerUI();
+  }
+}
+
+// Mostrar player cuando haya cartas
+document.getElementById('fileInput').addEventListener('change', () => {
+  setTimeout(() => {
+    if (filtered.length && miniPlayer.classList.contains('hidden')) {
+      miniPlayer.classList.remove('hidden');
+      playerActive = true;
+      playerIdx = 0;
+      updatePlayerUI();
+    }
+  }, 400);
+});
+</script>
+</body>
+</html>
