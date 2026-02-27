@@ -535,8 +535,8 @@
 </header>
 
 <div class="controls">
-  <label class="file-btn" for="fileInput">↑ Cargar CSV</label>
-  <input type="file" id="fileInput" accept=".csv">
+  <input type="file" id="fileInput" accept=".csv" style="display:none">
+  <span id="loadStatus" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);">Cargando vocabulario…</span>
 
   <div class="range-group">
     <span>desde</span>
@@ -757,6 +757,39 @@ function applyRange() {
   document.getElementById('progressWrap').style.display = 'block';
   render('forward');
 }
+
+// Carga automática del CSV desde la ruta relativa
+fetch('resultado.csv')
+  .then(res => {
+    if (!res.ok) throw new Error('No se pudo cargar resultado.csv');
+    return res.text();
+  })
+  .then(text => {
+    allCards = parseCSV(text);
+    const status = document.getElementById('loadStatus');
+    if (!allCards.length) {
+      status.textContent = '⚠ No se pudieron leer tarjetas del CSV.';
+      status.style.color = 'var(--accent3)';
+      return;
+    }
+    status.textContent = `✓ ${allCards.length} tarjetas cargadas`;
+    status.style.color = 'var(--accent)';
+    document.getElementById('rangeTo').value   = allCards.length;
+    document.getElementById('rangeFrom').value = 1;
+    applyRange();
+    // Mostrar mini player
+    if (filtered.length && miniPlayer.classList.contains('hidden')) {
+      miniPlayer.classList.remove('hidden');
+      playerActive = true;
+      playerIdx = 0;
+      updatePlayerUI();
+    }
+  })
+  .catch(err => {
+    const status = document.getElementById('loadStatus');
+    status.textContent = '⚠ Error: ' + err.message;
+    status.style.color = 'var(--accent3)';
+  });
 
 document.getElementById('fileInput').addEventListener('change', e => {
   const file = e.target.files[0]; if (!file) return;
@@ -1058,17 +1091,7 @@ function applyRangeAndShowPlayer() {
   }
 }
 
-// Mostrar player cuando haya cartas
-document.getElementById('fileInput').addEventListener('change', () => {
-  setTimeout(() => {
-    if (filtered.length && miniPlayer.classList.contains('hidden')) {
-      miniPlayer.classList.remove('hidden');
-      playerActive = true;
-      playerIdx = 0;
-      updatePlayerUI();
-    }
-  }, 400);
-});
+// (El player se activa automáticamente tras el fetch del CSV)
 </script>
 </body>
 </html>
