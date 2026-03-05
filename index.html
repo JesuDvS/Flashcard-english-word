@@ -353,7 +353,7 @@
     .range-group { flex-wrap: wrap; justify-content: center; }
   }
 
-  /* ── Voice Modal ── */
+  /* ── Voice Modal (shared styles) ── */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -382,6 +382,22 @@
     font-size: 22px;
     color: var(--text);
   }
+  /* Accent badge inside modal title */
+  .modal-title .lang-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .08em;
+    padding: 3px 9px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+    position: relative;
+    top: -2px;
+  }
+  .lang-badge-en { background: rgba(127,255,140,.15); color: var(--accent); border: 1px solid rgba(127,255,140,.3); }
+  .lang-badge-es { background: rgba(79,195,247,.15);  color: var(--accent2); border: 1px solid rgba(79,195,247,.3); }
+
   .modal-close {
     position: absolute;
     top: 14px; right: 18px;
@@ -431,6 +447,9 @@
     accent-color: var(--accent);
     cursor: pointer;
   }
+  /* ES modal accent color */
+  .modal-range-wrap.es-accent input[type=range] { accent-color: var(--accent2); }
+
   .modal-range-val {
     min-width: 36px;
     text-align: right;
@@ -438,6 +457,8 @@
     font-size: 13px;
     color: var(--accent);
   }
+  .modal-range-val.es { color: var(--accent2); }
+
   .modal-save {
     background: var(--accent);
     color: #080810;
@@ -452,6 +473,29 @@
     align-self: flex-end;
   }
   .modal-save:hover { opacity: .85; }
+  .modal-save.es-save {
+    background: var(--accent2);
+  }
+
+  /* Hint text inside modal */
+  .modal-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    opacity: .7;
+    line-height: 1.6;
+    background: rgba(79,195,247,.05);
+    border: 1px solid rgba(79,195,247,.12);
+    border-radius: 8px;
+    padding: 10px 13px;
+  }
+  .modal-hint code {
+    color: var(--accent2);
+    background: rgba(79,195,247,.1);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
 
   /* ── Mini Player ── */
   .mini-player {
@@ -517,6 +561,15 @@
     color: var(--muted);
     letter-spacing: .04em;
   }
+  /* Phase indicator inside player */
+  .player-phase {
+    font-size: 10px;
+    letter-spacing: .04em;
+    transition: color .2s;
+  }
+  .player-phase.en { color: var(--accent); }
+  .player-phase.es { color: var(--accent2); }
+
   .player-timer-ring {
     width: 34px;
     height: 34px;
@@ -547,7 +600,8 @@
   </div>
 
   <button class="btn" id="shuffleBtn">⇌ mezclar</button>
-  <button class="btn" id="voiceSettingsBtn">🎙 voz</button>
+  <button class="btn" id="voiceSettingsBtn">🎙 voz EN</button>
+  <button class="btn" id="voiceSettingsBtn2" style="border-color:rgba(79,195,247,.4);color:var(--accent2);">🔊 voz ES</button>
 </div>
 
 <div class="progress-wrap" id="progressWrap" style="display:none">
@@ -576,10 +630,12 @@
   <span class="cur" id="curNum">1</span> / <span id="totalNum">0</span>
 </div>
 
-<!-- ── Voice Settings Modal ── -->
+<!-- ══════════════════════════════════════
+     MODAL 1 — Voz EN (inglés)
+══════════════════════════════════════ -->
 <div class="modal-overlay" id="voiceModal">
   <div class="modal-box">
-    <div class="modal-title">⚙ Configuración de voz</div>
+    <div class="modal-title">⚙ Voz <span class="lang-badge lang-badge-en">EN</span></div>
     <button class="modal-close" id="closeVoiceModal">✕</button>
 
     <div class="modal-field">
@@ -617,6 +673,54 @@
   </div>
 </div>
 
+<!-- ══════════════════════════════════════
+     MODAL 2 — Voz ES (definición español)
+══════════════════════════════════════ -->
+<div class="modal-overlay" id="voiceModal2">
+  <div class="modal-box">
+    <div class="modal-title">⚙ Voz <span class="lang-badge lang-badge-es">ES</span></div>
+    <button class="modal-close" id="closeVoiceModal2">✕</button>
+
+    <div class="modal-hint">
+      Lee el campo <code>Definición</code> ignorando paréntesis, números y puntuación.<br>
+      Ejemplo: <code>"1. (sus.) Bolsillo."</code> → <em>"Bolsillo"</em>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Voz del navegador</div>
+      <select class="modal-select" id="voiceSelect2">
+        <option value="">Cargando voces…</option>
+      </select>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Velocidad</div>
+      <div class="modal-range-wrap es-accent">
+        <input type="range" id="rateSlider2" min="0.5" max="2" step="0.05" value="0.85">
+        <span class="modal-range-val es" id="rateVal2">0.85×</span>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Tono</div>
+      <div class="modal-range-wrap es-accent">
+        <input type="range" id="pitchSlider2" min="0.5" max="2" step="0.05" value="1">
+        <span class="modal-range-val es" id="pitchVal2">1.00</span>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <div class="modal-label">Pausa entre frases (seg)</div>
+      <div class="modal-range-wrap es-accent">
+        <input type="range" id="pauseSlider2" min="0" max="5" step="0.5" value="1">
+        <span class="modal-range-val es" id="pauseVal2">1.0 s</span>
+      </div>
+    </div>
+
+    <button class="modal-save es-save" id="saveVoiceSettings2">Probar voz ▶</button>
+  </div>
+</div>
+
 <!-- ── Mini Player ── -->
 <div class="mini-player hidden" id="miniPlayer">
   <button class="player-btn" id="playerPlayPause" title="Play / Pausa">▶</button>
@@ -624,6 +728,7 @@
   <div class="player-info">
     <div class="player-word" id="playerWord">—</div>
     <div class="player-meta" id="playerMeta">carta 0 / 0</div>
+    <div class="player-phase en" id="playerPhase">EN</div>
   </div>
   <button class="player-btn" id="playerNext" title="Siguiente carta">⏭</button>
   <!-- Anillo cuenta regresiva SVG -->
@@ -675,6 +780,20 @@ function getField(card, ...keys) {
     if (match && card[match]) return card[match];
   }
   return '';
+}
+
+/**
+ * Strips parenthetical groups, leading numbers, punctuation from a definition string.
+ * "1. (sus.) Bolsillo. ; 2. (v.) Embolsar, meter en el bolsillo."
+ * → "Bolsillo Embolsar meter en el bolsillo"
+ */
+function cleanDefinitionForSpeech(text) {
+  return text
+    .replace(/\([^)]*\)/g, '')       // remove (anything)
+    .replace(/\d+\.\s*/g, '')         // remove leading numbers like "1. "
+    .replace(/[.,;:!?¡¿\-–—]/g, ' ') // replace punctuation with space
+    .replace(/\s+/g, ' ')             // collapse whitespace
+    .trim();
 }
 
 function render(dir = 'forward') {
@@ -777,7 +896,6 @@ fetch('resultado.csv')
     document.getElementById('rangeTo').value   = allCards.length;
     document.getElementById('rangeFrom').value = 1;
     applyRange();
-    // Mostrar mini player
     if (filtered.length && miniPlayer.classList.contains('hidden')) {
       miniPlayer.classList.remove('hidden');
       playerActive = true;
@@ -829,50 +947,83 @@ document.addEventListener('keydown', e => {
 });
 
 /* ══════════════════════════════════════
-   VOICE SETTINGS
+   VOICE 1 — Inglés (palabra)
 ══════════════════════════════════════ */
-let voices       = [];
+let voices        = [];
 let selectedVoice = null;
-let ttsRate      = 0.85;
-let ttsPitch     = 1.0;
-let pauseSecs    = 3.0;
+let ttsRate       = 0.85;
+let ttsPitch      = 1.0;
+let pauseSecs     = 3.0;
+let voicesLoaded  = false;
 
-let voicesLoaded = false;
+/* ══════════════════════════════════════
+   VOICE 2 — Español (definición)
+══════════════════════════════════════ */
+let selectedVoice2 = null;
+let ttsRate2       = 0.85;
+let ttsPitch2      = 1.0;
+let pauseSecs2     = 1.0;
 
 function loadVoices() {
   const raw = speechSynthesis.getVoices();
-  if (!raw.length) return; // aún no disponibles
+  if (!raw.length) return;
 
-  // Guardar nombre de la voz actualmente seleccionada (para restaurarla)
-  const prevName = selectedVoice ? selectedVoice.name : null;
+  const prevName  = selectedVoice  ? selectedVoice.name  : null;
+  const prevName2 = selectedVoice2 ? selectedVoice2.name : null;
 
-  // Priorizar voces en inglés
   const eng  = raw.filter(v => v.lang.startsWith('en'));
   const rest = raw.filter(v => !v.lang.startsWith('en'));
   voices = [...eng, ...rest];
 
-  const sel = document.getElementById('voiceSelect');
-  sel.innerHTML = '';
-  let restoredIdx = -1;
-
+  // ── Populate voice select 1 ──
+  const sel1 = document.getElementById('voiceSelect');
+  sel1.innerHTML = '';
+  let restored1 = -1;
   voices.forEach((v, i) => {
     const opt = document.createElement('option');
     opt.value = i;
     opt.textContent = `${v.name} (${v.lang})${v.default ? ' ★' : ''}`;
-    sel.appendChild(opt);
-    if (v.name === prevName) restoredIdx = i; // encontrar la voz previa
+    sel1.appendChild(opt);
+    if (v.name === prevName) restored1 = i;
   });
-
-  if (restoredIdx !== -1) {
-    // Restaurar la selección del usuario
-    sel.value = restoredIdx;
-    selectedVoice = voices[restoredIdx];
+  if (restored1 !== -1) {
+    sel1.value = restored1;
+    selectedVoice = voices[restored1];
   } else if (!selectedVoice) {
-    // Primera carga: usar la voz por defecto
     const defIdx = voices.findIndex(v => v.default);
     const idx = defIdx !== -1 ? defIdx : 0;
-    sel.value = idx;
+    sel1.value = idx;
     selectedVoice = voices[idx] || null;
+  }
+
+  // ── Populate voice select 2 ──
+  const sel2 = document.getElementById('voiceSelect2');
+  sel2.innerHTML = '';
+  // For voice2, prioritise Spanish voices first
+  const esVoices  = raw.filter(v => v.lang.startsWith('es'));
+  const restVoices = raw.filter(v => !v.lang.startsWith('es'));
+  const voices2order = [...esVoices, ...restVoices];
+  let restored2 = -1;
+  // We still index into the global `voices` array for consistency
+  voices2order.forEach(v => {
+    const i = voices.findIndex(vv => vv.name === v.name);
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${v.name} (${v.lang})${v.default ? ' ★' : ''}`;
+    sel2.appendChild(opt);
+    if (v.name === prevName2) restored2 = i;
+  });
+  if (restored2 !== -1) {
+    sel2.value = restored2;
+    selectedVoice2 = voices[restored2];
+  } else if (!selectedVoice2) {
+    // pick first Spanish voice, or first available
+    const firstEs = voices2order[0];
+    if (firstEs) {
+      const idx = voices.findIndex(vv => vv.name === firstEs.name);
+      sel2.value = idx;
+      selectedVoice2 = voices[idx] || null;
+    }
   }
 
   voicesLoaded = true;
@@ -881,8 +1032,8 @@ function loadVoices() {
 speechSynthesis.addEventListener('voiceschanged', loadVoices);
 loadVoices();
 
+/* ── Modal 1 open/close ── */
 function openVoiceModal() {
-  // Sincronizar el select con la voz actualmente guardada (sin resetearla)
   if (!voicesLoaded) loadVoices();
   const sel = document.getElementById('voiceSelect');
   if (selectedVoice) {
@@ -891,7 +1042,6 @@ function openVoiceModal() {
   }
   document.getElementById('voiceModal').classList.add('open');
 }
-
 document.getElementById('voiceSettingsBtn').addEventListener('click', openVoiceModal);
 document.getElementById('closeVoiceModal').addEventListener('click', () => {
   document.getElementById('voiceModal').classList.remove('open');
@@ -901,6 +1051,26 @@ document.getElementById('voiceModal').addEventListener('click', e => {
     document.getElementById('voiceModal').classList.remove('open');
 });
 
+/* ── Modal 2 open/close ── */
+function openVoiceModal2() {
+  if (!voicesLoaded) loadVoices();
+  const sel = document.getElementById('voiceSelect2');
+  if (selectedVoice2) {
+    const idx = voices.findIndex(v => v.name === selectedVoice2.name);
+    if (idx !== -1) sel.value = idx;
+  }
+  document.getElementById('voiceModal2').classList.add('open');
+}
+document.getElementById('voiceSettingsBtn2').addEventListener('click', openVoiceModal2);
+document.getElementById('closeVoiceModal2').addEventListener('click', () => {
+  document.getElementById('voiceModal2').classList.remove('open');
+});
+document.getElementById('voiceModal2').addEventListener('click', e => {
+  if (e.target === document.getElementById('voiceModal2'))
+    document.getElementById('voiceModal2').classList.remove('open');
+});
+
+/* ── Sliders Voice 1 ── */
 document.getElementById('rateSlider').addEventListener('input', function() {
   ttsRate = parseFloat(this.value);
   document.getElementById('rateVal').textContent = ttsRate.toFixed(2) + '×';
@@ -916,12 +1086,35 @@ document.getElementById('pauseSlider').addEventListener('input', function() {
 document.getElementById('voiceSelect').addEventListener('change', function() {
   selectedVoice = voices[parseInt(this.value)] || null;
 });
-
 document.getElementById('saveVoiceSettings').addEventListener('click', () => {
   const testWord = filtered.length ? getField(filtered[current],'english-word','english word') : 'Hello, this is a voice test';
   speakWord(testWord);
 });
 
+/* ── Sliders Voice 2 ── */
+document.getElementById('rateSlider2').addEventListener('input', function() {
+  ttsRate2 = parseFloat(this.value);
+  document.getElementById('rateVal2').textContent = ttsRate2.toFixed(2) + '×';
+});
+document.getElementById('pitchSlider2').addEventListener('input', function() {
+  ttsPitch2 = parseFloat(this.value);
+  document.getElementById('pitchVal2').textContent = ttsPitch2.toFixed(2);
+});
+document.getElementById('pauseSlider2').addEventListener('input', function() {
+  pauseSecs2 = parseFloat(this.value);
+  document.getElementById('pauseVal2').textContent = pauseSecs2.toFixed(1) + ' s';
+});
+document.getElementById('voiceSelect2').addEventListener('change', function() {
+  selectedVoice2 = voices[parseInt(this.value)] || null;
+});
+document.getElementById('saveVoiceSettings2').addEventListener('click', () => {
+  const raw = filtered.length
+    ? getField(filtered[current], 'definition')
+    : '1. (sus.) Bolsillo. ; 2. (v.) Embolsar, meter en el bolsillo.';
+  speakDefinition(raw || 'Prueba de voz en español');
+});
+
+/* ── TTS helpers ── */
 function speakWord(text) {
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(text);
@@ -929,6 +1122,19 @@ function speakWord(text) {
   utt.rate  = ttsRate;
   utt.pitch = ttsPitch;
   utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+  speechSynthesis.speak(utt);
+  return utt;
+}
+
+function speakDefinition(rawText) {
+  speechSynthesis.cancel();
+  const cleaned = cleanDefinitionForSpeech(rawText);
+  if (!cleaned) return null;
+  const utt = new SpeechSynthesisUtterance(cleaned);
+  if (selectedVoice2) utt.voice = selectedVoice2;
+  utt.rate  = ttsRate2;
+  utt.pitch = ttsPitch2;
+  utt.lang  = selectedVoice2 ? selectedVoice2.lang : 'es-ES';
   speechSynthesis.speak(utt);
   return utt;
 }
@@ -943,15 +1149,19 @@ let playerTimer   = null;
 let timerStart    = null;
 let animFrame     = null;
 
+// Playback phase: 'en' → speaking English word, 'pause1' → gap, 'es' → speaking definition, 'pause2' → gap before next
+let playerPhase = 'en';
+
 const miniPlayer   = document.getElementById('miniPlayer');
 const btnPlayPause = document.getElementById('playerPlayPause');
 const btnPrev      = document.getElementById('playerPrev');
 const btnNext      = document.getElementById('playerNext');
 const btnClose     = document.getElementById('playerClose');
-const playerWord   = document.getElementById('playerWord');
+const playerWordEl = document.getElementById('playerWord');
 const playerMeta   = document.getElementById('playerMeta');
+const playerPhaseEl= document.getElementById('playerPhase');
 const timerArc     = document.getElementById('timerArc');
-const CIRCUMFERENCE = 87.96; // 2π×14
+const CIRCUMFERENCE = 87.96;
 
 function openPlayer() {
   playerIdx = current;
@@ -964,11 +1174,26 @@ function updatePlayerUI() {
   if (!filtered.length) return;
   const c = filtered[playerIdx];
   const word = getField(c,'english-word','english word');
-  playerWord.textContent = word || '—';
+  playerWordEl.textContent = word || '—';
   playerMeta.textContent = `carta ${playerIdx+1} / ${filtered.length}`;
   btnPlayPause.classList.toggle('active', playerPlaying);
   btnPlayPause.textContent = playerPlaying ? '⏸' : '▶';
-  timerArc.style.strokeDashoffset = CIRCUMFERENCE; // reset ring
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+  timerArc.setAttribute('stroke', '#7fff8c'); // reset to EN color
+  playerPhaseEl.textContent = '';
+  playerPhaseEl.className = 'player-phase';
+}
+
+function setPhaseUI(phase) {
+  if (phase === 'en') {
+    timerArc.setAttribute('stroke', '#7fff8c');
+    playerPhaseEl.textContent = '🎙 EN';
+    playerPhaseEl.className = 'player-phase en';
+  } else {
+    timerArc.setAttribute('stroke', '#4fc3f7');
+    playerPhaseEl.textContent = '🔊 ES';
+    playerPhaseEl.className = 'player-phase es';
+  }
 }
 
 function startPlayback() {
@@ -976,57 +1201,85 @@ function startPlayback() {
   playerPlaying = true;
   btnPlayPause.textContent = '⏸';
   btnPlayPause.classList.add('active');
-  speakAndWait();
+  playCardEN();
 }
 
-function speakAndWait() {
+/* Step 1: speak English word */
+function playCardEN() {
   if (!playerPlaying) return;
   const c = filtered[playerIdx];
   const word = getField(c,'english-word','english word');
-  playerWord.textContent = word || '—';
+  playerWordEl.textContent = word || '—';
   playerMeta.textContent = `carta ${playerIdx+1} / ${filtered.length}`;
-
-  // Navegar la tarjeta principal también
   current = playerIdx;
   render('forward');
+  setPhaseUI('en');
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE;
 
-  const utt = speakWord(word);
-  utt.onend = () => {
-    if (!playerPlaying) return;
-    startCountdown();
-  };
-  utt.onerror = () => { if (playerPlaying) startCountdown(); };
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(word || '');
+  if (selectedVoice) utt.voice = selectedVoice;
+  utt.rate  = ttsRate;
+  utt.pitch = ttsPitch;
+  utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+  utt.onend  = () => { if (playerPlaying) startCountdown(pauseSecs, playCardES); };
+  utt.onerror = () => { if (playerPlaying) playCardES(); };
+  speechSynthesis.speak(utt);
 }
 
-function startCountdown() {
+/* Step 2: speak ES definition */
+function playCardES() {
+  if (!playerPlaying) return;
+  const c = filtered[playerIdx];
+  const raw = getField(c, 'definition');
+  const cleaned = cleanDefinitionForSpeech(raw || '');
+  setPhaseUI('es');
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+
+  if (!cleaned) {
+    // No definition — skip straight to next card pause
+    startCountdown(pauseSecs2, advancePlayer);
+    return;
+  }
+
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(cleaned);
+  if (selectedVoice2) utt.voice = selectedVoice2;
+  utt.rate  = ttsRate2;
+  utt.pitch = ttsPitch2;
+  utt.lang  = selectedVoice2 ? selectedVoice2.lang : 'es-ES';
+  utt.onend  = () => { if (playerPlaying) startCountdown(pauseSecs2, advancePlayer); };
+  utt.onerror = () => { if (playerPlaying) advancePlayer(); };
+  speechSynthesis.speak(utt);
+}
+
+function startCountdown(secs, callback) {
   timerStart = performance.now();
   cancelAnimationFrame(animFrame);
-  animFrame = requestAnimationFrame(tickCountdown);
+  animFrame = requestAnimationFrame(ts => tickCountdown(ts, secs, callback));
 }
 
-function tickCountdown(now) {
+function tickCountdown(now, secs, callback) {
   if (!playerPlaying) return;
   const elapsed = (now - timerStart) / 1000;
-  const progress = Math.min(elapsed / pauseSecs, 1);
-  // Arco: 0→lleno mientras espera
+  const progress = Math.min(elapsed / secs, 1);
   timerArc.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
-
   if (progress >= 1) {
     timerArc.style.strokeDashoffset = CIRCUMFERENCE;
-    advancePlayer();
+    callback();
   } else {
-    animFrame = requestAnimationFrame(tickCountdown);
+    animFrame = requestAnimationFrame(ts => tickCountdown(ts, secs, callback));
   }
 }
 
 function advancePlayer() {
   if (playerIdx < filtered.length - 1) {
     playerIdx++;
-    speakAndWait();
+    playCardEN();
   } else {
-    // Terminó
     stopPlayback();
     playerMeta.textContent = `✓ completado (${filtered.length} cartas)`;
+    playerPhaseEl.textContent = '';
     timerArc.style.strokeDashoffset = 0;
   }
 }
@@ -1037,8 +1290,10 @@ function stopPlayback() {
   cancelAnimationFrame(animFrame);
   clearTimeout(playerTimer);
   timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+  timerArc.setAttribute('stroke', '#7fff8c');
   btnPlayPause.textContent = '▶';
   btnPlayPause.classList.remove('active');
+  playerPhaseEl.textContent = '';
 }
 
 btnPlayPause.addEventListener('click', () => {
@@ -1076,22 +1331,6 @@ btnClose.addEventListener('click', () => {
   miniPlayer.classList.add('hidden');
   playerActive = false;
 });
-
-// Abrir player con botón "▶ reproducir"
-document.getElementById('voiceSettingsBtn').addEventListener('click', () => {}, { once: false });
-
-// Mostrar player automáticamente si hay cartas y se hace click en el botón de voz
-// (el player se activa con el botón play del propio reproductor)
-// Asegurar que el player aparece cuando hay cartas cargadas
-const origApplyRange = applyRange;
-function applyRangeAndShowPlayer() {
-  origApplyRange();
-  if (!miniPlayer.classList.contains('hidden') || playerActive) {
-    updatePlayerUI();
-  }
-}
-
-// (El player se activa automáticamente tras el fetch del CSV)
 </script>
 </body>
 </html>
