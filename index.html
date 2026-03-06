@@ -1204,11 +1204,12 @@ function startPlayback() {
   playCardEN();
 }
 
-/* Step 1: speak English word */
+/* Step 1: speak English word (+ irregular form if present) */
 function playCardEN() {
   if (!playerPlaying) return;
   const c = filtered[playerIdx];
-  const word = getField(c,'english-word','english word');
+  const word      = getField(c,'english-word','english word');
+  const irregular = getField(c,'irregular-english-word','irregular english word');
   playerWordEl.textContent = word || '—';
   playerMeta.textContent = `carta ${playerIdx+1} / ${filtered.length}`;
   current = playerIdx;
@@ -1222,7 +1223,26 @@ function playCardEN() {
   utt.rate  = ttsRate;
   utt.pitch = ttsPitch;
   utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
-  utt.onend  = () => { if (playerPlaying) startCountdown(pauseSecs, playCardES); };
+
+  utt.onend = () => {
+    if (!playerPlaying) return;
+    if (irregular) {
+      // Pequeña pausa de 0.5 s antes de leer la forma irregular
+      setTimeout(() => {
+        if (!playerPlaying) return;
+        const uttIrr = new SpeechSynthesisUtterance(irregular);
+        if (selectedVoice) uttIrr.voice = selectedVoice;
+        uttIrr.rate  = ttsRate;
+        uttIrr.pitch = ttsPitch;
+        uttIrr.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+        uttIrr.onend  = () => { if (playerPlaying) startCountdown(pauseSecs, playCardES); };
+        uttIrr.onerror = () => { if (playerPlaying) playCardES(); };
+        speechSynthesis.speak(uttIrr);
+      }, 500);
+    } else {
+      startCountdown(pauseSecs, playCardES);
+    }
+  };
   utt.onerror = () => { if (playerPlaying) playCardES(); };
   speechSynthesis.speak(utt);
 }
