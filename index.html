@@ -65,8 +65,6 @@
     font-family: 'DM Mono', monospace;
     letter-spacing: .06em;
   }
-  /* ── Controls ── */
-  /* ── Controls ── */
   .controls {
     width: 100%;
     max-width: 960px;
@@ -141,7 +139,6 @@
   .btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
   .shuffle-on { border-color: var(--accent3) !important; color: var(--accent3) !important; }
 
-  /* ── Progress ── */
   .progress-wrap {
     width: 100%;
     max-width: 960px;
@@ -165,7 +162,6 @@
     color: var(--muted);
   }
 
-  /* ── Card row ── */
   .card-row {
     width: 100%;
     max-width: 960px;
@@ -176,7 +172,6 @@
     z-index: 1;
   }
 
-  /* ── Side nav buttons ── */
   .nav-btn {
     flex-shrink: 0;
     width: 54px;
@@ -202,7 +197,6 @@
   }
   .nav-btn:disabled { opacity: .18; cursor: not-allowed; }
 
-  /* ── Card ── */
   .card {
     flex: 1;
     min-width: 0;
@@ -216,7 +210,6 @@
     background-image: radial-gradient(circle at 94% 6%, rgba(127,255,140,.06) 0%, transparent 45%);
   }
 
-  /* Animation classes */
   .slide-forward {
     animation: slideForward .28s cubic-bezier(.4,0,.2,1) both;
   }
@@ -232,7 +225,6 @@
     to   { opacity: 1; transform: translateX(0); }
   }
 
-  /* Card header */
   .card-header {
     display: flex;
     justify-content: space-between;
@@ -254,7 +246,6 @@
     letter-spacing: .06em;
   }
 
-  /* Word — VERY LARGE */
   .card-word {
     font-family: 'DM Serif Display', serif;
     font-size: clamp(60px, 12vw, 104px);
@@ -263,7 +254,6 @@
     letter-spacing: -3px;
   }
 
-  /* Irregular */
   .card-irregular {
     font-family: 'DM Mono', monospace;
     font-size: clamp(15px, 2.2vw, 19px);
@@ -272,10 +262,8 @@
   }
   .card-irregular em { color: var(--muted); font-style: normal; }
 
-  /* Divider */
   .divider { height: 1px; background: var(--border); border: none; }
 
-  /* Labels */
   .section-label {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
@@ -286,7 +274,6 @@
     opacity: .65;
   }
 
-  /* Definition */
   .card-definition {
     font-size: clamp(19px, 3vw, 26px);
     color: var(--text);
@@ -294,7 +281,6 @@
     font-weight: 300;
   }
 
-  /* Example */
   .card-example {
     font-size: clamp(17px, 2.6vw, 23px);
     color: var(--accent2);
@@ -302,14 +288,12 @@
     line-height: 1.5;
   }
 
-  /* Translation */
   .card-translation {
     font-size: clamp(15px, 2.3vw, 20px);
     color: var(--muted);
     line-height: 1.5;
   }
 
-  /* Counter below */
   .card-counter {
     width: 100%;
     max-width: 960px;
@@ -323,7 +307,6 @@
   }
   .card-counter .cur { color: var(--text); }
 
-  /* Empty */
   #emptySlot {
     width: 100%;
     max-width: 960px;
@@ -353,7 +336,6 @@
     .range-group { flex-wrap: wrap; justify-content: center; }
   }
 
-  /* ── Voice Modal (shared styles) ── */
   .modal-overlay {
     display: none;
     position: fixed;
@@ -382,7 +364,6 @@
     font-size: 22px;
     color: var(--text);
   }
-  /* Accent badge inside modal title */
   .modal-title .lang-badge {
     display: inline-block;
     font-family: 'DM Mono', monospace;
@@ -447,7 +428,6 @@
     accent-color: var(--accent);
     cursor: pointer;
   }
-  /* ES modal accent color */
   .modal-range-wrap.es-accent input[type=range] { accent-color: var(--accent2); }
 
   .modal-range-val {
@@ -477,7 +457,6 @@
     background: var(--accent2);
   }
 
-  /* Hint text inside modal */
   .modal-hint {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
@@ -497,7 +476,6 @@
     font-size: 11px;
   }
 
-  /* ── Mini Player ── */
   .mini-player {
     position: fixed;
     bottom: 22px;
@@ -561,7 +539,6 @@
     color: var(--muted);
     letter-spacing: .04em;
   }
-  /* Phase indicator inside player */
   .player-phase {
     font-size: 10px;
     letter-spacing: .04em;
@@ -612,7 +589,6 @@
   </div>
 </div>
 
-<!-- [←] card [→] -->
 <div class="card-row" id="cardRow" style="display:none">
   <button class="nav-btn" id="prevBtn" disabled>←</button>
   <div id="cardSlot" style="flex:1;min-width:0;"></div>
@@ -630,9 +606,7 @@
   <span class="cur" id="curNum">1</span> / <span id="totalNum">0</span>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL 1 — Voz EN (inglés)
-══════════════════════════════════════ -->
+<!-- MODAL 1 — Voz EN -->
 <div class="modal-overlay" id="voiceModal">
   <div class="modal-box">
     <div class="modal-title">⚙ Voz <span class="lang-badge lang-badge-en">EN</span></div>
@@ -673,9 +647,7 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     MODAL 2 — Voz ES (definición español)
-══════════════════════════════════════ -->
+<!-- MODAL 2 — Voz ES -->
 <div class="modal-overlay" id="voiceModal2">
   <div class="modal-box">
     <div class="modal-title">⚙ Voz <span class="lang-badge lang-badge-es">ES</span></div>
@@ -721,7 +693,7 @@
   </div>
 </div>
 
-<!-- ── Mini Player ── -->
+<!-- Mini Player -->
 <div class="mini-player hidden" id="miniPlayer">
   <button class="player-btn" id="playerPlayPause" title="Play / Pausa">▶</button>
   <button class="player-btn" id="playerPrev" title="Carta anterior">⏮</button>
@@ -731,7 +703,6 @@
     <div class="player-phase en" id="playerPhase">EN</div>
   </div>
   <button class="player-btn" id="playerNext" title="Siguiente carta">⏭</button>
-  <!-- Anillo cuenta regresiva SVG -->
   <svg class="player-timer-ring" viewBox="0 0 34 34">
     <circle cx="17" cy="17" r="14" fill="none" stroke="#1e1e32" stroke-width="3"/>
     <circle id="timerArc" cx="17" cy="17" r="14" fill="none"
@@ -782,17 +753,12 @@ function getField(card, ...keys) {
   return '';
 }
 
-/**
- * Strips parenthetical groups, leading numbers, punctuation from a definition string.
- * "1. (sus.) Bolsillo. ; 2. (v.) Embolsar, meter en el bolsillo."
- * → "Bolsillo Embolsar meter en el bolsillo"
- */
 function cleanDefinitionForSpeech(text) {
   return text
-    .replace(/\([^)]*\)/g, '')       // remove (anything)
-    .replace(/\d+\.\s*/g, '')         // remove leading numbers like "1. "
-    .replace(/[.,;:!?¡¿\-–—]/g, ' ') // replace punctuation with space
-    .replace(/\s+/g, ' ')             // collapse whitespace
+    .replace(/\([^)]*\)/g, '')
+    .replace(/\d+\.\s*/g, '')
+    .replace(/[.,;:!?¡¿\-–—]/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
 }
 
@@ -877,7 +843,6 @@ function applyRange() {
   render('forward');
 }
 
-// Carga automática del CSV desde la ruta relativa
 fetch('resultado.csv')
   .then(res => {
     if (!res.ok) throw new Error('No se pudo cargar resultado.csv');
@@ -947,22 +912,23 @@ document.addEventListener('keydown', e => {
 });
 
 /* ══════════════════════════════════════
-   VOICE 1 — Inglés (palabra)
+   VOICE SETTINGS
 ══════════════════════════════════════ */
 let voices        = [];
 let selectedVoice = null;
 let ttsRate       = 0.85;
 let ttsPitch      = 1.0;
-let pauseSecs     = 3.0;
+let pauseSecs     = 1.0;
 let voicesLoaded  = false;
 
-/* ══════════════════════════════════════
-   VOICE 2 — Español (definición)
-══════════════════════════════════════ */
 let selectedVoice2 = null;
-let ttsRate2       = 0.85;
+let ttsRate2       = 0.65;
 let ttsPitch2      = 1.0;
-let pauseSecs2     = 1.0;
+let pauseSecs2     = 0.0;
+
+// Nombres de voz preferidos
+const PREFERRED_EN_VOICE = 'Microsoft Ana Online (Natural) - English (United States)';
+const PREFERRED_ES_VOICE = 'Microsoft Camila Online (Natural) - Spanish (Peru)';
 
 function loadVoices() {
   const raw = speechSynthesis.getVoices();
@@ -975,7 +941,7 @@ function loadVoices() {
   const rest = raw.filter(v => !v.lang.startsWith('en'));
   voices = [...eng, ...rest];
 
-  // ── Populate voice select 1 ──
+  // ── Populate voice select 1 (EN) ──
   const sel1 = document.getElementById('voiceSelect');
   sel1.innerHTML = '';
   let restored1 = -1;
@@ -986,25 +952,34 @@ function loadVoices() {
     sel1.appendChild(opt);
     if (v.name === prevName) restored1 = i;
   });
+
   if (restored1 !== -1) {
+    // Restaurar selección previa del usuario
     sel1.value = restored1;
     selectedVoice = voices[restored1];
   } else if (!selectedVoice) {
-    const defIdx = voices.findIndex(v => v.default);
-    const idx = defIdx !== -1 ? defIdx : 0;
-    sel1.value = idx;
-    selectedVoice = voices[idx] || null;
+    // 1º: buscar la voz preferida por nombre exacto
+    const preferredIdx = voices.findIndex(v => v.name === PREFERRED_EN_VOICE);
+    if (preferredIdx !== -1) {
+      sel1.value = preferredIdx;
+      selectedVoice = voices[preferredIdx];
+    } else {
+      // 2º: voz marcada como default del sistema; si no, la primera
+      const defIdx = voices.findIndex(v => v.default);
+      const idx = defIdx !== -1 ? defIdx : 0;
+      sel1.value = idx;
+      selectedVoice = voices[idx] || null;
+    }
   }
 
-  // ── Populate voice select 2 ──
+  // ── Populate voice select 2 (ES) ──
   const sel2 = document.getElementById('voiceSelect2');
   sel2.innerHTML = '';
-  // For voice2, prioritise Spanish voices first
-  const esVoices  = raw.filter(v => v.lang.startsWith('es'));
+  // Mostrar voces españolas primero en el desplegable
+  const esVoices   = raw.filter(v => v.lang.startsWith('es'));
   const restVoices = raw.filter(v => !v.lang.startsWith('es'));
   const voices2order = [...esVoices, ...restVoices];
   let restored2 = -1;
-  // We still index into the global `voices` array for consistency
   voices2order.forEach(v => {
     const i = voices.findIndex(vv => vv.name === v.name);
     const opt = document.createElement('option');
@@ -1013,16 +988,25 @@ function loadVoices() {
     sel2.appendChild(opt);
     if (v.name === prevName2) restored2 = i;
   });
+
   if (restored2 !== -1) {
+    // Restaurar selección previa del usuario
     sel2.value = restored2;
     selectedVoice2 = voices[restored2];
   } else if (!selectedVoice2) {
-    // pick first Spanish voice, or first available
-    const firstEs = voices2order[0];
-    if (firstEs) {
-      const idx = voices.findIndex(vv => vv.name === firstEs.name);
-      sel2.value = idx;
-      selectedVoice2 = voices[idx] || null;
+    // 1º: buscar la voz preferida por nombre exacto
+    const preferredESIdx = voices.findIndex(v => v.name === PREFERRED_ES_VOICE);
+    if (preferredESIdx !== -1) {
+      sel2.value = preferredESIdx;
+      selectedVoice2 = voices[preferredESIdx];
+    } else {
+      // 2º: primera voz española disponible, o la primera de la lista
+      const firstEs = voices2order[0];
+      if (firstEs) {
+        const idx = voices.findIndex(vv => vv.name === firstEs.name);
+        sel2.value = idx;
+        selectedVoice2 = voices[idx] || null;
+      }
     }
   }
 
@@ -1149,7 +1133,6 @@ let playerTimer   = null;
 let timerStart    = null;
 let animFrame     = null;
 
-// Playback phase: 'en' → speaking English word, 'pause1' → gap, 'es' → speaking definition, 'pause2' → gap before next
 let playerPhase = 'en';
 
 const miniPlayer   = document.getElementById('miniPlayer');
@@ -1179,7 +1162,7 @@ function updatePlayerUI() {
   btnPlayPause.classList.toggle('active', playerPlaying);
   btnPlayPause.textContent = playerPlaying ? '⏸' : '▶';
   timerArc.style.strokeDashoffset = CIRCUMFERENCE;
-  timerArc.setAttribute('stroke', '#7fff8c'); // reset to EN color
+  timerArc.setAttribute('stroke', '#7fff8c');
   playerPhaseEl.textContent = '';
   playerPhaseEl.className = 'player-phase';
 }
@@ -1204,7 +1187,6 @@ function startPlayback() {
   playCardEN();
 }
 
-/* Beep de separación entre cartas */
 let _audioCtx = null;
 function playCardBeep() {
   return new Promise(resolve => {
@@ -1216,18 +1198,17 @@ function playCardBeep() {
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);          // La5 — tono claro
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
       gain.gain.setValueAtTime(0, ctx.currentTime);
       gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.23);
-      osc.onended = () => setTimeout(resolve, 120); // pequeño silencio tras el beep
+      osc.onended = () => setTimeout(resolve, 120);
     } catch(e) { resolve(); }
   });
 }
 
-/* Step 1: speak English word (+ irregular form if present) */
 function playCardEN() {
   if (!playerPlaying) return;
   const c = filtered[playerIdx];
@@ -1242,7 +1223,6 @@ function playCardEN() {
 
   speechSynthesis.cancel();
 
-  // Beep primero, luego habla
   playCardBeep().then(() => {
     if (!playerPlaying) return;
     speakCardWord();
@@ -1257,7 +1237,6 @@ function playCardEN() {
     utt.onend = () => {
       if (!playerPlaying) return;
       if (irregular) {
-        // Pequeña pausa de 0.5 s antes de leer la forma irregular
         setTimeout(() => {
           if (!playerPlaying) return;
           const uttIrr = new SpeechSynthesisUtterance(irregular);
@@ -1275,10 +1254,9 @@ function playCardEN() {
     };
     utt.onerror = () => { if (playerPlaying) playCardES(); };
     speechSynthesis.speak(utt);
-  } // end speakCardWord
+  }
 }
 
-/* Step 2: speak ES definition */
 function playCardES() {
   if (!playerPlaying) return;
   const c = filtered[playerIdx];
@@ -1288,7 +1266,6 @@ function playCardES() {
   timerArc.style.strokeDashoffset = CIRCUMFERENCE;
 
   if (!cleaned) {
-    // No definition — skip straight to next card pause
     startCountdown(pauseSecs2, advancePlayer);
     return;
   }
