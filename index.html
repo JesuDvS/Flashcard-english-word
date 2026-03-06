@@ -1204,6 +1204,29 @@ function startPlayback() {
   playCardEN();
 }
 
+/* Beep de separación entre cartas */
+let _audioCtx = null;
+function playCardBeep() {
+  return new Promise(resolve => {
+    try {
+      if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const ctx = _audioCtx;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);          // La5 — tono claro
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.22);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.23);
+      osc.onended = () => setTimeout(resolve, 120); // pequeño silencio tras el beep
+    } catch(e) { resolve(); }
+  });
+}
+
 /* Step 1: speak English word (+ irregular form if present) */
 function playCardEN() {
   if (!playerPlaying) return;
@@ -1218,33 +1241,41 @@ function playCardEN() {
   timerArc.style.strokeDashoffset = CIRCUMFERENCE;
 
   speechSynthesis.cancel();
-  const utt = new SpeechSynthesisUtterance(word || '');
-  if (selectedVoice) utt.voice = selectedVoice;
-  utt.rate  = ttsRate;
-  utt.pitch = ttsPitch;
-  utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
 
-  utt.onend = () => {
+  // Beep primero, luego habla
+  playCardBeep().then(() => {
     if (!playerPlaying) return;
-    if (irregular) {
-      // Pequeña pausa de 0.5 s antes de leer la forma irregular
-      setTimeout(() => {
-        if (!playerPlaying) return;
-        const uttIrr = new SpeechSynthesisUtterance(irregular);
-        if (selectedVoice) uttIrr.voice = selectedVoice;
-        uttIrr.rate  = ttsRate;
-        uttIrr.pitch = ttsPitch;
-        uttIrr.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
-        uttIrr.onend  = () => { if (playerPlaying) startCountdown(pauseSecs, playCardES); };
-        uttIrr.onerror = () => { if (playerPlaying) playCardES(); };
-        speechSynthesis.speak(uttIrr);
-      }, 500);
-    } else {
-      startCountdown(pauseSecs, playCardES);
-    }
-  };
-  utt.onerror = () => { if (playerPlaying) playCardES(); };
-  speechSynthesis.speak(utt);
+    speakCardWord();
+  });
+
+  function speakCardWord() {
+    const utt = new SpeechSynthesisUtterance(word || '');
+    if (selectedVoice) utt.voice = selectedVoice;
+    utt.rate  = ttsRate;
+    utt.pitch = ttsPitch;
+    utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+    utt.onend = () => {
+      if (!playerPlaying) return;
+      if (irregular) {
+        // Pequeña pausa de 0.5 s antes de leer la forma irregular
+        setTimeout(() => {
+          if (!playerPlaying) return;
+          const uttIrr = new SpeechSynthesisUtterance(irregular);
+          if (selectedVoice) uttIrr.voice = selectedVoice;
+          uttIrr.rate  = ttsRate;
+          uttIrr.pitch = ttsPitch;
+          uttIrr.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+          uttIrr.onend  = () => { if (playerPlaying) startCountdown(pauseSecs, playCardES); };
+          uttIrr.onerror = () => { if (playerPlaying) playCardES(); };
+          speechSynthesis.speak(uttIrr);
+        }, 500);
+      } else {
+        startCountdown(pauseSecs, playCardES);
+      }
+    };
+    utt.onerror = () => { if (playerPlaying) playCardES(); };
+    speechSynthesis.speak(utt);
+  } // end speakCardWord
 }
 
 /* Step 2: speak ES definition */
