@@ -1172,9 +1172,17 @@ function setPhaseUI(phase) {
     timerArc.setAttribute('stroke', '#7fff8c');
     playerPhaseEl.textContent = '🎙 EN';
     playerPhaseEl.className = 'player-phase en';
-  } else {
+  } else if (phase === 'es') {
     timerArc.setAttribute('stroke', '#4fc3f7');
     playerPhaseEl.textContent = '🔊 ES';
+    playerPhaseEl.className = 'player-phase es';
+  } else if (phase === 'example') {
+    timerArc.setAttribute('stroke', '#7fff8c');
+    playerPhaseEl.textContent = '📖 Ejemplo EN';
+    playerPhaseEl.className = 'player-phase en';
+  } else if (phase === 'translation') {
+    timerArc.setAttribute('stroke', '#4fc3f7');
+    playerPhaseEl.textContent = '📝 Traducción ES';
     playerPhaseEl.className = 'player-phase es';
   }
 }
@@ -1266,12 +1274,58 @@ function playCardES() {
   timerArc.style.strokeDashoffset = CIRCUMFERENCE;
 
   if (!cleaned) {
-    startCountdown(pauseSecs2, advancePlayer);
+    playCardExampleEN();
     return;
   }
 
   speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(cleaned);
+  if (selectedVoice2) utt.voice = selectedVoice2;
+  utt.rate  = ttsRate2;
+  utt.pitch = ttsPitch2;
+  utt.lang  = selectedVoice2 ? selectedVoice2.lang : 'es-ES';
+  utt.onend  = () => { if (playerPlaying) playCardExampleEN(); };
+  utt.onerror = () => { if (playerPlaying) playCardExampleEN(); };
+  speechSynthesis.speak(utt);
+}
+
+function playCardExampleEN() {
+  if (!playerPlaying) return;
+  const c = filtered[playerIdx];
+  const example = getField(c, 'example-sentence', 'example sentence');
+  setPhaseUI('example');
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+
+  if (!example) {
+    playCardTranslationES();
+    return;
+  }
+
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(example);
+  if (selectedVoice) utt.voice = selectedVoice;
+  utt.rate  = ttsRate;
+  utt.pitch = ttsPitch;
+  utt.lang  = selectedVoice ? selectedVoice.lang : 'en-US';
+  utt.onend  = () => { if (playerPlaying) playCardTranslationES(); };
+  utt.onerror = () => { if (playerPlaying) playCardTranslationES(); };
+  speechSynthesis.speak(utt);
+}
+
+function playCardTranslationES() {
+  if (!playerPlaying) return;
+  const c = filtered[playerIdx];
+  const translation = getField(c, 'translate-example-sentence', 'translate example sentence');
+  setPhaseUI('translation');
+  timerArc.style.strokeDashoffset = CIRCUMFERENCE;
+
+  if (!translation) {
+    startCountdown(pauseSecs2, advancePlayer);
+    return;
+  }
+
+  speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(translation);
   if (selectedVoice2) utt.voice = selectedVoice2;
   utt.rate  = ttsRate2;
   utt.pitch = ttsPitch2;
